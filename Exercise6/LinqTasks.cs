@@ -234,10 +234,10 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<object> Task7()
         {
-            //var methodSyntax = Emps.
-              //  Select(e => new { Praca = e.Job, LiczbaPracownikow = Emps.Count()})
-                //.GroupBy(e => ;
-                IEnumerable<object> result = null; //methodSyntax;
+            var methodSyntax = Emps.GroupBy(e => e.Job)
+                .Select(g => new { Praca = g.Key, LiczbaPracownikow = g.Count() });
+                
+            IEnumerable<object> result = methodSyntax;
             return result;
         }
 
@@ -247,7 +247,8 @@ namespace Exercise6
         /// </summary>
         public static bool Task8()
         {
-            bool result = false;
+            var methodSyntax = Emps.Any(e => e.Job.Equals("Backend programmer"));
+            bool result = methodSyntax;
             return result;
         }
 
@@ -257,7 +258,12 @@ namespace Exercise6
         /// </summary>
         public static Emp Task9()
         {
-            Emp result = null;
+            var methodSyntax = Emps
+                .Where(e => e.Job.Equals("Frontend programmer"))
+                .OrderByDescending(e => e.HireDate)
+                .FirstOrDefault();
+            
+            Emp result = methodSyntax;
             return result;
         }
 
