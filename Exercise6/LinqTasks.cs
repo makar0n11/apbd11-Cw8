@@ -1,4 +1,5 @@
-﻿using Exercise6.Models;
+﻿using System.Threading.Tasks.Dataflow;
+using Exercise6.Models;
 
 namespace Exercise6
 {
@@ -274,7 +275,14 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<object> Task10()
         {
-            IEnumerable<object> result = null;
+            var methodSyntax = Emps
+                .Select(e => new { e.Ename, e.Job, e.HireDate })
+                .Union(new[]
+                {
+                    new { Ename = "Brak wartości", Job = (string) null, HireDate = (DateTime?)null }
+                });
+            
+            IEnumerable<object> result = methodSyntax;
             return result;
         }
 
@@ -291,7 +299,14 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<object> Task11()
         {
-            IEnumerable<object> result = null;
+            var metodSyntax = Emps.GroupBy(e => e.Deptno)
+                .Where(g => g.Count() > 1)
+                .Select(g => new
+                {
+                    name = Depts.FirstOrDefault(d => d.Deptno == g.Key)?.Dname,
+                    numOfEmployees = g.Count()
+                });
+            IEnumerable<object> result = metodSyntax;
             return result;
         }
 
@@ -304,7 +319,8 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<Emp> Task12()
         {
-            IEnumerable<Emp> result = null;
+            
+            IEnumerable<Emp> result = Emps.EmpsWithReports();
             return result;
         }
 
@@ -318,7 +334,10 @@ namespace Exercise6
         public static int Task13(int[] arr)
         {
             int result = 0;
-            //result=
+            result = arr.GroupBy(i => i)
+                .Where(g => g.Count() % 2 != 0)
+                .Select(g => g.Key)
+                .Single();
             return result;
         }
 
@@ -329,13 +348,25 @@ namespace Exercise6
         public static IEnumerable<Dept> Task14()
         {
             IEnumerable<Dept> result = null;
-            //result =
-            return result;
+            result = Depts.GroupJoin(Emps, d => d.Deptno, e => e.Deptno,
+                    (dept, emps) => new { Dept = dept, empCount = emps.Count() })
+                .Where(de => de.empCount == 0 || de.empCount == 5)
+                .OrderBy(de => de.Dept.Dname)
+                .Select(de => de.Dept);
+        return result;
         }
     }
 
     public static class CustomExtensionMethods
     {
         //Put your extension methods here
+        public static IEnumerable<Emp> EmpsWithReports(this IEnumerable<Emp> emps)
+        {
+            var result = emps
+                .Where(e => emps.Any(report => report.Mgr.Equals(e)))
+                .OrderBy(e => e.Ename)
+                .ThenByDescending(e => e.Salary);
+            return result;
+        }
     }
 }
